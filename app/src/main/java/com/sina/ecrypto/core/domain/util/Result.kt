@@ -1,4 +1,4 @@
-package com.sina.ecrypto.util
+package com.sina.ecrypto.core.domain.util
 
 typealias DomainError = Error
 
