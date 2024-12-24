@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">eCrypto</string>
+    <string name="error_request_timeout">Request Times Out</string>
 </resources>
