@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.sina.ecrypto.core.presentation.util.ObserveAsEvents
 import com.sina.ecrypto.core.presentation.util.toString
 import com.sina.ecrypto.crypto.presentation.CoinListEvent
+import com.sina.ecrypto.crypto.presentation.coin_detail.CoinDetailScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -32,7 +33,7 @@ class MainActivity : ComponentActivity() {
                     val state by viewModel.state.collectAsStateWithLifecycle()
 
                     val context = LocalContext.current
-                    ObserveAsEvents(events = viewModel.events) {event->
+                    ObserveAsEvents(events = viewModel.events) { event ->
                         when (event) {
                             is CoinListEvent.Error -> Toast.makeText(
                                 context,
@@ -41,10 +42,22 @@ class MainActivity : ComponentActivity() {
                             ).show()
                         }
                     }
-                    CoinListScreen(
-                        state = state,
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    when {
+                        state.selectedCoin != null -> {
+                            CoinDetailScreen(
+                                state = state,
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
+
+                        else -> {
+                            CoinListScreen(
+                                state = state,
+                                modifier = Modifier.padding(innerPadding),
+                                onAction = viewModel::onAction
+                            )
+                        }
+                    }
                 }
             }
         }

@@ -1,8 +1,8 @@
 package com.sina.ecrypto.crypto.presentation.models
 
 import androidx.annotation.DrawableRes
+import com.sina.ecrypto.core.presentation.util.getDrawableIdForCoin
 import com.sina.ecrypto.crypto.domain.Coin
-import com.sina.ecrypto.util.getDrawableIdForCoin
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -27,15 +27,15 @@ fun Coin.toCoinUi(): CoinUi {
         id = id, name = name,
         symbol = symbol,
         rank = rank,
-        priceUsd = priceUsd.toDisplyableNumber(),
-        marketCapUsd = marketCapUsd.toDisplyableNumber(),
-        changePercent24Hr = changPercent24Hr.toDisplyableNumber(),
+        priceUsd = priceUsd.toDisplayableNumber(),
+        marketCapUsd = marketCapUsd.toDisplayableNumber(),
+        changePercent24Hr = changPercent24Hr.toDisplayableNumber(),
         iconRes = getDrawableIdForCoin(symbol)
     )
 }
 
 
-fun Double.toDisplyableNumber(): DisplayableNumber {
+fun Double.toDisplayableNumber(): DisplayableNumber {
     val formatter = NumberFormat.getNumberInstance(Locale.getDefault()).apply {
         minimumFractionDigits = 2
         maximumFractionDigits = 2
