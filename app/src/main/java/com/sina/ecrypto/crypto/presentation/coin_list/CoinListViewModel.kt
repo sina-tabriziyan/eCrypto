@@ -1,11 +1,14 @@
 package com.sina.ecrypto.crypto.presentation.coin_list
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sina.ecrypto.core.domain.util.onError
 import com.sina.ecrypto.core.domain.util.onSuccess
 import com.sina.ecrypto.crypto.domain.CoinDataSource
 import com.sina.ecrypto.crypto.presentation.CoinListEvent
+import com.sina.ecrypto.crypto.presentation.models.CoinUi
 import com.sina.ecrypto.crypto.presentation.models.toCoinUi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +19,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
 
 class CoinListViewModel(
     private val coinDataSource: CoinDataSource
@@ -33,16 +37,35 @@ class CoinListViewModel(
     val events = _events.receiveAsFlow()
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun onAction(action: CoinListAction) {
         when (action) {
             is CoinListAction.OnCoinClick -> {
-                _state.update { it.copy(
-                    selectedCoin = action.coinUi
-                ) }
+                selectCoin(action.coinUi)
             }
 //            is CoinListAction.OnRefresh -> {
 //                loadCoins()
 //            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun selectCoin(coinUi: CoinUi) {
+        _state.update { it.copy(selectedCoin = coinUi) }
+
+        viewModelScope.launch {
+            coinDataSource
+                .getCoinHistory(
+                    coinId = coinUi.id,
+                    start = ZonedDateTime.now().minusDays(5),
+                    end = ZonedDateTime.now()
+                )
+                .onSuccess { history ->
+                    println(history)
+                }
+                .onError { error ->
+                    _events.send(CoinListEvent.Error(error))
+                }
         }
     }
 
