@@ -3,6 +3,7 @@ package com.sina.ecrypto.crypto.presentation.models
 import androidx.annotation.DrawableRes
 import com.sina.ecrypto.core.presentation.util.getDrawableIdForCoin
 import com.sina.ecrypto.crypto.domain.Coin
+import com.sina.ecrypto.crypto.presentation.coin_list.DataPoint
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -14,6 +15,7 @@ data class CoinUi(
     val marketCapUsd: DisplayableNumber,
     val priceUsd: DisplayableNumber,
     val changePercent24Hr: DisplayableNumber,
+    val coinPriceHistory: List<DataPoint> =emptyList(),
     @DrawableRes val iconRes: Int
 )
 

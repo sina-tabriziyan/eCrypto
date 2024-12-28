@@ -13,13 +13,13 @@ import com.sina.ecrypto.crypto.presentation.models.toCoinUi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class CoinListViewModel(
     private val coinDataSource: CoinDataSource
@@ -40,12 +40,7 @@ class CoinListViewModel(
     @RequiresApi(Build.VERSION_CODES.O)
     fun onAction(action: CoinListAction) {
         when (action) {
-            is CoinListAction.OnCoinClick -> {
-                selectCoin(action.coinUi)
-            }
-//            is CoinListAction.OnRefresh -> {
-//                loadCoins()
-//            }
+            is CoinListAction.OnCoinClick -> selectCoin(action.coinUi)
         }
     }
 
@@ -61,7 +56,20 @@ class CoinListViewModel(
                     end = ZonedDateTime.now()
                 )
                 .onSuccess { history ->
-                    println(history)
+                    val dataPoints: List<DataPoint> = history.sortedBy { it.dateTime }.map {
+                        DataPoint(
+                            x = it.dateTime.hour.toFloat(),
+                            y = it.priceUsd.toFloat(),
+                            xLabel = DateTimeFormatter.ofPattern("ha\nM/d").format(it.dateTime)
+                        )
+                    }
+                    _state.update {
+                        it.copy(
+                            selectedCoin = it.selectedCoin?.copy(
+                                coinPriceHistory = dataPoints
+                            )
+                        )
+                    }
                 }
                 .onError { error ->
                     _events.send(CoinListEvent.Error(error))
@@ -71,11 +79,7 @@ class CoinListViewModel(
 
     private fun loadCoins() {
         viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    isLoading = true
-                )
-            }
+            _state.update { it.copy(isLoading = true) }
 
             coinDataSource.getCoins()
                 .onSuccess { coins ->

@@ -16,5 +16,5 @@ interface CoinDataSource {
 
 data class CoinPrice(
     val priceUsd: Double,
-    val dateTime: ZonedDateTime?
+    val dateTime: ZonedDateTime
 )
