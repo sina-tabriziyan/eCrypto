@@ -18,6 +18,7 @@ import com.sina.ecrypto.ui.theme.ECryptoTheme
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import com.sina.ecrypto.core.navigation.AdaptiveCoinListDetailPane
 import com.sina.ecrypto.core.presentation.util.ObserveAsEvents
 import com.sina.ecrypto.core.presentation.util.toString
 import com.sina.ecrypto.crypto.presentation.CoinListEvent
@@ -30,37 +31,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ECryptoTheme {
+            ECryptoTheme() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val viewModel = koinViewModel<CoinListViewModel>()
-                    val state by viewModel.state.collectAsStateWithLifecycle()
-
-                    val context = LocalContext.current
-                    ObserveAsEvents(events = viewModel.events) { event ->
-                        when (event) {
-                            is CoinListEvent.Error -> Toast.makeText(
-                                context,
-                                event.error.toString(context),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                    when {
-                        state.selectedCoin != null -> {
-                            CoinDetailScreen(
-                                state = state,
-                                modifier = Modifier.padding(innerPadding)
-                            )
-                        }
-
-                        else -> {
-                            CoinListScreen(
-                                state = state,
-                                modifier = Modifier.padding(innerPadding),
-                                onAction = viewModel::onAction
-                            )
-                        }
-                    }
+                    AdaptiveCoinListDetailPane(
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
         }
